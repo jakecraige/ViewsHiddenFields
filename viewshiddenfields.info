@@ -1,0 +1,5 @@
+name = Views Hidden Fields
+description = Automatically adds hidden to admin title when set to exclude
+package = Poetic Systems
+core = 7.x
+

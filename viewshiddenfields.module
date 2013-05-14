@@ -1,0 +1,71 @@
+<?php
+// Options form -> handlers.inc 392
+// Options form -> views_handler_field.inc 477
+//   if $form['exclude'] is checked
+//   alter $form['ui_name'] to hidden title
+
+
+
+// views_ui_config_item_form need to alter
+
+function viewshiddenfields_form_alter(&$form, &$form_state, $form_id) {
+  if($form_id == 'views_ui_config_item_form') {
+    if(strstr($form['#title'], 'field')) {
+      // array_unshift($form['#submit'], 'viewshiddenfields_submit');
+      array_unshift($form['buttons']['submit']['#submit']
+        , 'viewshiddenfields_form_alter_submit');
+      //$form['#submit'][0] = 'viewshiddenfields_submit';
+      //dsm($form);
+    }
+  }
+}
+
+
+function viewshiddenfields_form_alter_submit(&$form, &$form_state) {
+
+  // Exclude From Display Checked
+  if($form['options']['exclude']['#value'] == 1) {
+    // Administrative Field Already Set
+    if(!empty($form['options']['ui_name']['#value'])) {
+      if(!strstr($form['options']['ui_name']['#value'], 'Hidden')) {
+        $title = '[Hidden] ' . $form['options']['ui_name']['#value'];
+      }
+    }
+    // Administrative Field Blank.
+    else {
+      $title = '[Hidden] ' . viewshiddenfields_get_title($form['#title']);
+    }
+  }
+  // Exclude From Display Unchecked
+  else {
+    // Exclude not checked. Make sure [Hidden] is not in the name
+    $title = &$form['options']['ui_name']['#value'];
+    if(strstr($title, '[Hidden] ')) {
+      $title = str_replace('[Hidden] ', '', $title);
+    }
+  }
+
+  if(isset($title)) {
+    $form['options']['ui_name']['#default_value'] = $title;
+    $form['options']['ui_name']['#value'] = $title;
+    $form_state['values']['options']['ui_name'] = $title;
+    $form_state['input']['options']['ui_name'] = $title;
+  }
+}
+
+function viewshiddenfields_get_title($title) {
+  dsm($title);
+  if(strstr($title, '[Hidden]')) {
+    $explode = explode('[Hidden]', $title);
+  }
+  else {
+    $explode = explode('Content:', $title);
+  }
+  return trim(array_pop($explode));
+  // if($title = str_replace('[Hidden] ', '', $title)) {
+  //   return $title;
+  // }
+  // else {
+  //   return str_replace('Configure field: Content: ', '', $title);
+  // }
+}
