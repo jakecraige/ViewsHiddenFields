@@ -1,26 +1,29 @@
 <?php
-// Options form -> handlers.inc 392
-// Options form -> views_handler_field.inc 477
-//   if $form['exclude'] is checked
-//   alter $form['ui_name'] to hidden title
+/*
+ * View Hidden Field Module
+ * by Jake Craige (jakecraige)
+ *
+ * Description: 
+ *  This module will automatticly prepend [Hidden] to fields
+ *  in views when 'Exclude from Display' is checked.
+ */
 
 
-
-// views_ui_config_item_form need to alter
-
+/*
+ * implements hook_form_alter()
+ */
 function viewshiddenfields_form_alter(&$form, &$form_state, $form_id) {
   if($form_id == 'views_ui_config_item_form') {
     if(strstr($form['#title'], 'field')) {
-      // array_unshift($form['#submit'], 'viewshiddenfields_submit');
       array_unshift($form['buttons']['submit']['#submit']
         , 'viewshiddenfields_form_alter_submit');
-      //$form['#submit'][0] = 'viewshiddenfields_submit';
-      //dsm($form);
     }
   }
 }
 
-
+/*
+ * implements hook_form_alter_submit()
+ */
 function viewshiddenfields_form_alter_submit(&$form, &$form_state) {
 
   // Exclude From Display Checked
@@ -52,7 +55,12 @@ function viewshiddenfields_form_alter_submit(&$form, &$form_state) {
     $form_state['input']['options']['ui_name'] = $title;
   }
 }
-
+/*
+ * Returns Title without hidden or content in it.
+ * also need to add it rules for if the product is 
+ * referenced it doesn't keep the configure field part
+ * in it
+ */
 function viewshiddenfields_get_title($title) {
   if(strstr($title, '[Hidden]')) {
     $explode = explode('[Hidden]', $title);
@@ -61,10 +69,4 @@ function viewshiddenfields_get_title($title) {
     $explode = explode('Content:', $title);
   }
   return trim(array_pop($explode));
-  // if($title = str_replace('[Hidden] ', '', $title)) {
-  //   return $title;
-  // }
-  // else {
-  //   return str_replace('Configure field: Content: ', '', $title);
-  // }
 }
